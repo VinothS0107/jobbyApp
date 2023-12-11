@@ -3,6 +3,8 @@
   flex-direction: column;
   gap: 20px;
   padding-bottom: 30px;
+  position: sticky;
+  top: 0;
 }
 .filter-heading {
   margin: 0;

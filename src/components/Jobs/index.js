@@ -5,7 +5,7 @@ import Loader from 'react-loader-spinner'
 
 import Header from '../Header'
 import ProfileDetails from '../ProfileDetails'
-import FiltersGroup from '../JobsFilterGroup'
+import JobsFiltersGroup from '../JobsFilterGroup'
 import JobCard from '../JobCard'
 
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css'
@@ -27,6 +27,7 @@ class Jobs extends Component {
     searchInput: '',
     activeSalaryRangeId: '',
     employmentTypesChecked: [],
+    locationType: [],
   }
 
   componentDidMount() {
@@ -59,6 +60,7 @@ class Jobs extends Component {
       employmentTypesChecked,
       searchInput,
     } = this.state
+
     const employTypes = employmentTypesChecked.join(',')
     const jwtToken = Cookies.get('jwt_token')
     const apiUrl = `https://apis.ccbp.in/jobs?employment_type=${employTypes}&minimum_package=${activeSalaryRangeId}&search=${searchInput}`
@@ -144,13 +146,27 @@ class Jobs extends Component {
     )
   }
 
+  onLocationChoose = event => {
+    const {locationType, jobsList} = this.state
+    const chosenValue = event.target.value
+    if (locationType.includes(chosenValue)) {
+      const filterLocation = locationType.filter(each => each !== chosenValue)
+      this.setState({locationType: filterLocation})
+    } else {
+      const addedLocation = [...locationType, chosenValue]
+      this.setState({locationType: addedLocation})
+    }
+  }
+
   renderSideBar = () => {
     const {
       profileDetails,
       profileApiStatus,
       activeSalaryRangeId,
       employmentTypesChecked,
+      locationType,
     } = this.state
+
     return (
       <div className="side-bar">
         {this.renderSearchBar('smallSearchBar')}
@@ -160,11 +176,13 @@ class Jobs extends Component {
           getProfileDetails={this.getProfileDetails}
         />
         <hr className="separator" />
-        <FiltersGroup
+        <JobsFiltersGroup
           updateSalaryRangeId={this.updateSalaryRangeId}
           activeSalaryRangeId={activeSalaryRangeId}
           updateEmploymentTypesChecked={this.updateEmploymentTypesChecked}
           employmentTypesChecked={employmentTypesChecked}
+          locationChosen={locationType}
+          onChooseLocation={this.onLocationChoose}
         />
       </div>
     )
@@ -185,12 +203,21 @@ class Jobs extends Component {
   )
 
   renderJobsList = () => {
-    const {jobsList} = this.state
+    let finalJobList = []
+    const {jobsList, locationType} = this.state
+    if (locationType.length === 0) {
+      finalJobList = jobsList
+    } else {
+      locationType.forEach(each => {
+        const valueNew = jobsList.filter(eachJob => eachJob.location === each)
+        finalJobList = [...finalJobList, ...valueNew]
+      })
+    }
     return (
       <>
-        {jobsList.length > 0 ? (
+        {finalJobList.length > 0 ? (
           <ul className="jobs-list">
-            {jobsList.map(eachJob => (
+            {finalJobList.map(eachJob => (
               <JobCard key={eachJob.id} jobDetails={eachJob} />
             ))}
           </ul>

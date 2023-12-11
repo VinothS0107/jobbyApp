@@ -39,7 +39,15 @@ const salaryRangesList = [
   },
 ]
 
-const FiltersGroup = props => {
+const location = [
+  {locationId: 'Hyderabad', label: 'Hyderabad'},
+  {locationId: 'Bangalore', label: 'Bangalore'},
+  {locationId: 'Chennai', label: 'Chennai'},
+  {locationId: 'Delhi', label: 'Delhi'},
+  {locationId: 'Mumbai', label: 'Mumbai'},
+]
+
+const JobsFiltersGroup = props => {
   const renderEmploymentTypesList = () => {
     const {updateEmploymentTypesChecked} = props
 
@@ -103,13 +111,43 @@ const FiltersGroup = props => {
     </>
   )
 
+  const renderLocationType = () => {
+    const {onChooseLocation} = props
+
+    const onClickLocation = event => {
+      onChooseLocation(event)
+    }
+
+    return (
+      <ul className="filters-list">
+        {location.map(eachLocation => (
+          <li className="fliters-list-item" key={eachLocation.locationId}>
+            <input
+              type="checkbox"
+              className="checkbox-input"
+              id={eachLocation.locationId}
+              name="salary ranges"
+              onClick={onClickLocation}
+              value={eachLocation.locationId}
+            />
+            <label htmlFor={eachLocation.locationId} className="filter-label">
+              {eachLocation.label}
+            </label>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
   return (
     <div className="filters-group-container">
       {renderEmploymentTypes()}
       <hr className="separator" />
       {renderSalaryRangesTypes()}
+      <hr className="separator" />
+      {renderLocationType()}
     </div>
   )
 }
 
-export default FiltersGroup
+export default JobsFiltersGroup
